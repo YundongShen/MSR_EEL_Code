@@ -190,7 +190,7 @@ def process_instance(instance: dict, repos_dir: Path) -> dict | None:
     fail_to_pass: list[str] = json.loads(instance.get("FAIL_TO_PASS", "[]"))
     pass_to_pass: list[str] = json.loads(instance.get("PASS_TO_PASS", "[]"))
 
-    # Collect source files touched by the gold patch.
+    # Collect source files touched by the reference patch.
     source_paths = files_from_diff(patch)
     # Collect test files from test IDs.
     test_paths = test_files_from_ids(fail_to_pass + pass_to_pass)

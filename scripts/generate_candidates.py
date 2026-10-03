@@ -1,32 +1,36 @@
-"""Generate Tier-3 (scope-creep) hunks using Claude API.
+"""Generate candidate patches with an LLM (one raw generation per SWE-bench issue).
 
 For each SWE-bench instance:
-  1. Build code context from source_files (gold patch file focus)
-  2. Call Claude with unconstrained prompt: "Fix the bug. Make any changes necessary."
-  3. Parse Claude's SEARCH/REPLACE response → unified diff
-  4. Extract hunks that don't overlap with gold patch → Tier-3
-  5. Save to tier3_hunks.jsonl (one line per instance with ≥1 Tier-3 hunk)
+  1. Build the prompt: issue text + code context.  The context is centred on the hunks of
+     the reference patch and the prompt names the reference patch's files ("The file(s) to
+     modify are: ...").
+  2. Call the LLM with the unconstrained prompt: "Fix the bug. Make any changes necessary."
+  3. Parse the SEARCH/REPLACE response and apply it → unified diff (difflib).
+  4. Append the full record (prompt inputs, raw response, extracted diff) to the generations
+     file.  Nothing is labelled here.
 
-No repo cloning or test execution needed. Tier-3 is determined by diff comparison only.
+Retained / non-retained (Tier 1/2/3) labels are derived from the generations by
+scripts/build_dataset.py, so the labelling can be redone without calling the API again.
+For an independent extra sample of the same model, run again with a different
+--generations file and pass all files to build_dataset.py.
 
-Output format:
-  {"instance_id": "...", "tier3_hunks": [
-    {"filepath": "...", "hunk_diff": "...",
-     "context_before": [...], "context_after": [...], "tier_label": 3}
-  ]}
+Paper protocol: --model claude-haiku-4-5-20251001, temperature 0.7, max tokens 4096,
+one prompt for every instance.
 
 Usage:
-  # Smoke test (5 sympy instances, ~$0.10):
+  # Smoke test (5 sympy instances):
   export ANTHROPIC_API_KEY=sk-ant-...
-  python scripts/generate_tier3.py --max 5 --repo-filter sympy/sympy
+  python scripts/generate_candidates.py --max 5 --repo-filter sympy/sympy \\
+      --generations /tmp/smoke_generations.jsonl
 
   # Full run via SLURM:
-  sbatch scripts/generate_tier3.slurm
+  sbatch scripts/generate_candidates.slurm
 """
 
 from __future__ import annotations
 
 import argparse
+import datetime
 import json
 import logging
 import re
@@ -36,6 +40,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from data.hunk_matching import parse_hunks
 from data.llm_client import LLMClient
 from data.patch_generator import (
     _UNCONSTRAINED_SYSTEM,
@@ -179,112 +184,28 @@ def _apply_sr_blocks_partial(
 
 
 # ---------------------------------------------------------------------------
-# Hunk parsing (self-contained, no dependency on parse_instances.py)
+# Per-instance generation
 # ---------------------------------------------------------------------------
 
-def _parse_hunks_simple(patch: str) -> list[dict]:
-    """Split a unified diff into hunk records with file + start_line."""
-    hunks: list[dict] = []
-    current_file: str | None = None
-    current_lines: list[str] = []
-    old_start: int | None = None
-
-    for raw in patch.splitlines(keepends=True):
-        if raw.startswith("--- "):
-            m = re.match(r"^--- (?:a/)?(.+)", raw)
-            current_file = m.group(1).strip() if m else None
-            continue
-        if raw.startswith("+++ "):
-            continue
-        if raw.startswith("@@"):
-            if current_lines and current_file and old_start is not None:
-                hunks.append({
-                    "filepath": current_file,
-                    "old_start": old_start,
-                    "lines": list(current_lines),
-                })
-            current_lines = [raw]
-            m = re.search(r"@@ -(\d+)", raw)
-            old_start = int(m.group(1)) if m else 1
-        elif current_lines is not None:
-            current_lines.append(raw)
-
-    if current_lines and current_file and old_start is not None:
-        hunks.append({
-            "filepath": current_file,
-            "old_start": old_start,
-            "lines": list(current_lines),
-        })
-    return hunks
-
-
-def _is_extra_hunk(
-    claude_file: str,
-    claude_start: int,
-    gold_hunks: list[dict],
-    threshold: int = 20,
-) -> bool:
-    """Return True if this Claude hunk doesn't overlap any gold hunk.
-
-    A hunk is considered extra (Tier-3) if:
-    - It modifies a file not touched by gold at all, OR
-    - It modifies a file in gold but the start line is >=threshold away from
-      all gold hunks in that file.
-    """
-    same_file_gold = [gh for gh in gold_hunks if gh["filepath"] == claude_file]
-    if not same_file_gold:
-        return True  # different file entirely → definitely Tier-3
-    return all(abs(gh["old_start"] - claude_start) >= threshold for gh in same_file_gold)
-
-
-def _extract_context(
-    source_files: dict[str, str],
-    filepath: str,
-    old_start: int,
-    hunk_lines: list[str],
-    ctx: int = 5,
-) -> tuple[list[str], list[str]]:
-    """Extract ctx lines before and after the hunk from source_files."""
-    if filepath not in source_files:
-        return [], []
-    src = source_files[filepath].splitlines()
-    before_end = max(0, old_start - 1)
-    before_start = max(0, before_end - ctx)
-    context_before = src[before_start:before_end]
-
-    old_count = sum(
-        1 for l in hunk_lines[1:]
-        if l.startswith(" ") or l.startswith("-")
-    )
-    after_start = old_start - 1 + old_count
-    context_after = src[after_start: after_start + ctx]
-    return context_before, context_after
-
-
-# ---------------------------------------------------------------------------
-# Per-instance processing
-# ---------------------------------------------------------------------------
-
-def _build_user_prompt(inst: dict) -> str:
-    """Build the user prompt, using the full Claude code budget for context."""
+def _build_user_prompt(inst: dict, code_budget: int = _CLAUDE_CODE_BUDGET) -> str:
+    """Build the user prompt with configurable code context budget."""
     source_files: dict[str, str] = inst.get("source_files", {})
-    gold_diff: str = inst.get("patch", "")
+    reference_patch: str = inst.get("patch", "")
     issue_text: str = inst.get("problem_statement", "")
 
     sample = DataSample(
         sample_id=inst.get("instance_id", ""),
         issue_text=issue_text,
         old_codebase=source_files,
-        golden_diff=gold_diff,
+        reference_diff=reference_patch,
         test_suite=inst.get("test_files", {}),
     )
 
-    # Use the large Claude budget so entire relevant files are shown without gaps
-    code_ctx = _relevant_context(sample, budget=_CLAUDE_CODE_BUDGET)
-    gold_files = _extract_diff_file_paths(gold_diff)
+    code_ctx = _relevant_context(sample, budget=code_budget)
+    reference_files = _extract_diff_file_paths(reference_patch)
     file_hint = (
-        f"\nThe file(s) to modify are: {', '.join(gold_files)}\n"
-        if gold_files else ""
+        f"\nThe file(s) to modify are: {', '.join(reference_files)}\n"
+        if reference_files else ""
     )
     return (
         f"## Issue\n{issue_text}\n"
@@ -294,21 +215,19 @@ def _build_user_prompt(inst: dict) -> str:
     )
 
 
-def process_instance(inst: dict, llm: LLMClient) -> dict:
-    """Process one instance. Returns a record dict with raw_response, claude_diff, tier3_hunks.
+def generate(inst: dict, llm: LLMClient, code_budget: int = _CLAUDE_CODE_BUDGET) -> dict | None:
+    """Generate one candidate patch for one instance.
 
-    Always returns the LLM response for caching, even when no Tier-3 hunks are extracted.
-    Returns None only if we cannot attempt generation (no gold hunks, or LLM failure).
+    Returns the generation fields, or None if the instance has no reference hunks or the
+    LLM call fails.  The raw response is always kept, even when no patch can be extracted.
     """
     source_files: dict[str, str] = inst.get("source_files", {})
-    gold_diff: str = inst.get("patch", "")
 
-    gold_hunks = _parse_hunks_simple(gold_diff)
-    if not gold_hunks:
-        log.debug("%s: no gold hunks, skipping", inst.get("instance_id"))
+    if not parse_hunks(inst.get("patch", "")):
+        log.debug("%s: no reference hunks, skipping", inst.get("instance_id"))
         return None
 
-    user = _build_user_prompt(inst)
+    user = _build_user_prompt(inst, code_budget=code_budget)
     raw = llm.complete(_UNCONSTRAINED_SYSTEM, user)
     if raw is None:
         log.warning("%s: LLM returned None", inst.get("instance_id"))
@@ -316,32 +235,10 @@ def process_instance(inst: dict, llm: LLMClient) -> dict:
 
     # Parse SR blocks → unified diff (extended parser handles Haiku's no-FILE: format)
     blocks = _parse_sr_blocks_extended(raw, source_files)
-    claude_diff = _apply_sr_blocks_partial(source_files, blocks) if blocks else ""
-
-    # Extract Tier-3 hunks (extra hunks not overlapping gold)
-    tier3: list[dict] = []
-    if claude_diff:
-        for ch in _parse_hunks_simple(claude_diff):
-            if not _is_extra_hunk(ch["filepath"], ch["old_start"], gold_hunks):
-                continue
-            hunk_diff = "".join(ch["lines"])
-            ctx_before, ctx_after = _extract_context(
-                source_files, ch["filepath"], ch["old_start"], ch["lines"]
-            )
-            tier3.append({
-                "filepath": ch["filepath"],
-                "old_start_line": ch["old_start"],
-                "hunk_diff": hunk_diff,
-                "context_before": ctx_before,
-                "context_after": ctx_after,
-                "tier_label": 3,
-            })
-
     return {
         "raw_response": raw,
-        "claude_diff": claude_diff,
+        "extracted_diff": _apply_sr_blocks_partial(source_files, blocks) if blocks else "",
         "modified_files": _apply_sr_to_files(source_files, blocks) if blocks else {},
-        "tier3_hunks": tier3,
         "sr_blocks_found": len(blocks),
         "sr_blocks_applied": len([b for b in blocks if _fuzzy_find(
             source_files.get(b[0], source_files.get(
@@ -356,18 +253,18 @@ def process_instance(inst: dict, llm: LLMClient) -> dict:
 # ---------------------------------------------------------------------------
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument(
         "--input", default="data/raw/swebench_full_instances.jsonl",
         help="Raw SWE-bench JSONL with source_files and patch fields",
     )
     parser.add_argument(
-        "--output", default="data/cache/tier3_hunks.jsonl",
-        help="Output JSONL path",
+        "--generations", default="data/cache/haiku_generations.jsonl",
+        help="Generations JSONL to append to (one record per instance; also the resume index)",
     )
     parser.add_argument(
         "--model", default="claude-haiku-4-5-20251001",
-        help="Claude model ID",
+        help="LLM model ID",
     )
     parser.add_argument(
         "--max", type=int, default=None, dest="max_instances",
@@ -376,6 +273,14 @@ def main() -> None:
     parser.add_argument(
         "--repo-filter", default=None,
         help="Only process instances from this repo, e.g. sympy/sympy",
+    )
+    parser.add_argument(
+        "--split", default=None, choices=["train", "val", "test"],
+        help="Filter to instances in this split (reads data/processed/splits.json)",
+    )
+    parser.add_argument(
+        "--splits-file", default="data/processed/splits.json",
+        help="Path to splits.json (default: data/processed/splits.json)",
     )
     parser.add_argument(
         "--sleep", type=float, default=0.3,
@@ -391,27 +296,30 @@ def main() -> None:
     )
     parser.add_argument(
         "--provider", default="anthropic",
-        help="LLM provider: anthropic or openai (for vLLM/Qwen)",
+        help="LLM provider: anthropic or openai (for vLLM/Qwen/Gemini)",
     )
     parser.add_argument(
         "--api-base", default=None,
         help="API base URL for OpenAI-compatible endpoints (vLLM)",
     )
+    parser.add_argument(
+        "--code-budget", type=int, default=None,
+        help="Max chars of code context per prompt (default: 100000 for cloud models). "
+             "Set to ~12000 for 7B models with 8192-token context windows.",
+    )
     args = parser.parse_args()
 
-    out_path = Path(args.output)
+    out_path = Path(args.generations)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Cache file: stores raw LLM responses for every processed instance.
-    # Named alongside the output file so they stay together.
-    # Allows re-extracting Tier-3 with improved logic without re-calling the API.
-    cache_path = out_path.with_suffix(".cache.jsonl")
+    split_ids: set[str] | None = None
+    if args.split is not None:
+        with open(args.splits_file) as fh:
+            split_ids = set(json.load(fh)[f"{args.split}_ids"])
+        log.info("Split filter: %s → %d instances", args.split, len(split_ids))
 
-    # Resume: collect already-written instance_ids from the main output.
-    # Also index the cache so we can reuse responses without API calls.
+    # Resume: skip instances that already have a generation in the output file.
     done_ids: set[str] = set()
-    cached_responses: dict[str, dict] = {}  # instance_id → cached record
-
     if out_path.exists():
         with open(out_path) as fh:
             for line in fh:
@@ -419,18 +327,7 @@ def main() -> None:
                     done_ids.add(json.loads(line)["instance_id"])
                 except Exception:
                     pass
-    if cache_path.exists():
-        with open(cache_path) as fh:
-            for line in fh:
-                try:
-                    rec = json.loads(line)
-                    cached_responses[rec["instance_id"]] = rec
-                    done_ids.add(rec["instance_id"])
-                except Exception:
-                    pass
-    if done_ids:
-        log.info("Resuming: %d already processed (output=%d cache=%d)",
-                 len(done_ids), len(done_ids) - len(cached_responses), len(cached_responses))
+        log.info("Resuming: %d already generated", len(done_ids))
 
     llm = LLMClient(
         provider=args.provider,
@@ -442,12 +339,12 @@ def main() -> None:
         retry_delay=5.0,
     )
 
-    processed = yielded = skipped = 0
+    code_budget = args.code_budget if args.code_budget is not None else _CLAUDE_CODE_BUDGET
+    log.info("Model: %s  code budget: %d chars", args.model, code_budget)
 
-    with open(args.input) as fin, \
-         open(out_path, "a") as fout, \
-         open(cache_path, "a") as fcache:
+    processed = skipped = 0
 
+    with open(args.input) as fin, open(out_path, "a") as fout:
         for lineno, raw_line in enumerate(fin, 1):
             raw_line = raw_line.strip()
             if not raw_line:
@@ -462,6 +359,8 @@ def main() -> None:
 
             if args.repo_filter and inst.get("repo") != args.repo_filter:
                 continue
+            if split_ids is not None and iid not in split_ids:
+                continue
             if iid in done_ids:
                 skipped += 1
                 continue
@@ -471,20 +370,15 @@ def main() -> None:
             processed += 1
             log.info("[%d] %s", processed, iid)
 
-            result = process_instance(inst, llm)
+            result = generate(inst, llm, code_budget=code_budget)
             if result is None:
-                log.info("  → skipped (no gold hunks or LLM failure)")
+                log.info("  → skipped (no reference hunks or LLM failure)")
                 continue
 
-            # Build universal cache record — self-contained, reusable for future tasks.
-            # Two logical layers in one record:
-            #   "meta"       — SWE-bench instance identity, repo, problem statement
-            #   "generation" — everything the LLM produced (raw + extracted)
-            #   "annotations"— experiment-specific labels (Tier-3 hunks)
-            import datetime
-            cache_record = {
-                # ── Universal layer (HuggingFace-compatible) ──────────────────
+            # meta.gold_patch is SWE-bench's own name for the reference patch.
+            record = {
                 "id": iid,
+                "instance_id": iid,
                 "source": "swebench",
                 "repo": inst.get("repo", ""),
                 "created_at": datetime.datetime.utcnow().isoformat() + "Z",
@@ -501,46 +395,19 @@ def main() -> None:
                     "temperature": args.temperature,
                     "max_tokens": args.max_tokens,
                     "system_prompt": _UNCONSTRAINED_SYSTEM,
-                    "raw_response": result["raw_response"],
-                    "extracted_diff": result["claude_diff"],
-                    "modified_files": result["modified_files"],
-                    "sr_blocks_found": result["sr_blocks_found"],
-                    "sr_blocks_applied": result["sr_blocks_applied"],
+                    **result,
                 },
-                # ── Experiment-specific layer ─────────────────────────────────
-                "annotations": {
-                    "tier3_hunks": result["tier3_hunks"],
-                    "has_scope_creep": bool(result["tier3_hunks"]),
-                },
-                # Flat alias for our pipeline's direct lookup
-                "instance_id": iid,
-                "tier3_hunks": result["tier3_hunks"],
             }
-            fcache.write(json.dumps(cache_record) + "\n")
-            fcache.flush()
-
-            # Write Tier-3 hunks to main output only when present
-            if result["tier3_hunks"]:
-                record = {"instance_id": iid, "tier3_hunks": result["tier3_hunks"]}
-                fout.write(json.dumps(record) + "\n")
-                fout.flush()
-                yielded += 1
-                log.info("  → %d Tier-3 hunk(s) saved  (SR: %d/%d applied)",
-                         len(result["tier3_hunks"]),
-                         result["sr_blocks_applied"], result["sr_blocks_found"])
-            else:
-                log.info("  → no Tier-3 hunks  (SR: %d/%d applied)",
-                         result["sr_blocks_applied"], result["sr_blocks_found"])
+            fout.write(json.dumps(record) + "\n")
+            fout.flush()
+            log.info("  → generated  (SR: %d/%d applied)",
+                     result["sr_blocks_applied"], result["sr_blocks_found"])
 
             if args.sleep > 0:
                 time.sleep(args.sleep)
 
-    log.info(
-        "Done. processed=%d  yielded=%d  skipped(resume)=%d  yield_rate=%.1f%%",
-        processed, yielded, skipped,
-        100.0 * yielded / processed if processed else 0,
-    )
-    log.info("Cache: %s", cache_path)
+    log.info("Done. processed=%d  skipped(resume)=%d  → %s", processed, skipped, out_path)
+    log.info("Next: python scripts/build_dataset.py --generations %s", out_path)
 
 
 if __name__ == "__main__":

@@ -1,2 +1,9 @@
+torch==2.5.1
+transformers==4.47.0
+numpy==1.26.4
+scipy==1.17.1
 anthropic==0.100.0
-datasets
+tokenizers==0.21.4
+safetensors==0.7.0
+huggingface_hub==0.36.2
+rank-bm25==0.2.2

@@ -22,14 +22,14 @@ class DataSample:
     sample_id: str
     issue_text: str
     old_codebase: dict[str, str]     # filename → source
-    golden_diff: str                  # unified-diff string
+    reference_diff: str                  # unified-diff string
     test_suite: dict[str, str]        # test filename → source
     metadata: dict = field(default_factory=dict)
 
     def relevant_files(self) -> list[str]:
-        """Files touched by the golden diff."""
+        """Files touched by the reference diff."""
         touched: list[str] = []
-        for line in self.golden_diff.splitlines():
+        for line in self.reference_diff.splitlines():
             if line.startswith("--- a/") or line.startswith("+++ b/"):
                 fname = line.split("/", 1)[-1]
                 touched.append(fname)
@@ -89,7 +89,7 @@ class JSONDataLoader(DataLoader):
                 sample_id=row["id"],
                 issue_text=row["issue"],
                 old_codebase=row.get("old_files", {}),
-                golden_diff=row["diff"],
+                reference_diff=row["diff"],
                 test_suite=row.get("tests", {}),
                 metadata=row.get("meta", {}),
             )
@@ -159,7 +159,7 @@ class GitHubDataLoader(DataLoader):
                     sample_id=f"{self._repo_slug}#PR{pr.number}",
                     issue_text=f"{issue.title}\n\n{issue.body or ''}",
                     old_codebase={},   # populated on demand; requires extra API calls
-                    golden_diff=diff,
+                    reference_diff=diff,
                     test_suite={},
                 )
             )
@@ -196,7 +196,7 @@ class GitHubDataLoader(DataLoader):
                     "id": s.sample_id,
                     "issue": s.issue_text,
                     "old_files": s.old_codebase,
-                    "diff": s.golden_diff,
+                    "diff": s.reference_diff,
                     "tests": s.test_suite,
                 }
                 fh.write(json.dumps(row) + "\n")
@@ -258,6 +258,6 @@ class MockDataLoader(DataLoader):
                 sample_id=f"mock-{i:04d}",
                 issue_text=self._MOCK_ISSUE,
                 old_codebase=dict(self._MOCK_OLD_CODE),
-                golden_diff=self._MOCK_DIFF,
+                reference_diff=self._MOCK_DIFF,
                 test_suite=dict(self._MOCK_TESTS),
             )

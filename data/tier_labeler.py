@@ -1,23 +1,18 @@
-"""Assign Tier 1 / Tier 2 labels to gold patch hunks.
+"""Static test-link heuristic that splits retained hunks into Tier 1 and Tier 2.
 
 Tier assignment (offline, no test execution required):
 
-  Tier 1 — Hunk is in a file that is likely covered by at least one
-            fail-to-pass test, inferred from import statements in the
-            test files and directory co-location.
-
-  Tier 2 — Gold hunk with no such inferred coverage link.
-            These are "necessary but untested" changes — the hardest
-            sub-task for any scope detection method.
-
-Both tiers are gold changes; only Tier 3 (unconstrained extras) is drift.
-The Tier 1 / Tier 2 split lets us measure whether the model can explain
-changes that tests alone cannot justify.
+  Tier 1 — the hunk's file is likely covered by at least one fail-to-pass test,
+            inferred from import statements in the test files and directory co-location.
+  Tier 2 — no such inferred coverage link ("necessary but untested" changes).
 
 Heuristic:
-  A hunk file F is Tier 1 if any fail-to-pass test file T satisfies:
+  A file F is Tier 1 if any fail-to-pass test file T satisfies:
     (a) T imports a module that is a prefix of F's dotted module name, OR
     (b) F and T share the same package directory (co-location).
+
+The label is a property of the hunk's file, so it is applied to the generated retained
+hunks when scripts/build_dataset.py builds the dataset.
 """
 
 from __future__ import annotations
@@ -54,80 +49,51 @@ def _package_dir(filepath: str) -> str:
 # Public API
 # ---------------------------------------------------------------------------
 
-def label_tiers(
-    instance: dict,
+def tier_of_file(
+    filepath: str,
+    fail_to_pass_ids: list[str],
     raw_test_sources: dict[str, str] | None = None,
-) -> list[int]:
-    """Return a Tier label (1 or 2) for each hunk in ``instance['gold_hunks']``.
+) -> int:
+    """Return 1 if ``filepath`` is linked to a fail-to-pass test, else 2.
 
     Parameters
     ----------
-    instance:
-        A parsed instance dict as produced by ``scripts/parse_instances.py``.
-        Must contain ``fail_to_pass_ids`` and ``gold_hunks``.
+    filepath:
+        Repo-relative path of the file the hunk modifies.
+    fail_to_pass_ids:
+        SWE-bench fail-to-pass test ids (``path/to/test_file.py::test_name``).
     raw_test_sources:
-        Optional mapping filepath → full source of test files.
-        If provided, import-based coverage is checked in addition to
-        directory co-location (more accurate).
-
-    Returns
-    -------
-    list[int] — one tier per hunk, in the same order as ``gold_hunks``.
+        Optional mapping test filepath → full source.  If provided, import-based
+        coverage is checked in addition to directory co-location (more accurate).
     """
-    fail_to_pass: list[str] = instance.get("fail_to_pass_ids", [])
-    gold_hunks: list[dict] = instance.get("gold_hunks", [])
+    if not filepath:
+        return 2
 
-    # Collect test file paths referenced by fail_to_pass IDs
-    test_paths: set[str] = {tid.split("::")[0] for tid in fail_to_pass}
-
-    # Build set of (module, package_dir) pairs for test files
+    test_paths: set[str] = {tid.split("::")[0] for tid in fail_to_pass_ids}
     test_modules: set[str] = set()
     test_dirs: set[str] = set()
-
     for tp in test_paths:
         test_dirs.add(_package_dir(tp))
-        # If raw sources are available, extract imports for exact coverage
         if raw_test_sources and tp in raw_test_sources:
             test_modules |= _extract_imports(raw_test_sources[tp])
 
-    # For each hunk decide tier
-    tiers: list[int] = []
-    for hunk in gold_hunks:
-        filepath = hunk.get("filepath", "")
-        if not filepath:
-            tiers.append(2)
-            continue
+    hunk_module = _path_to_module(filepath)
+    hunk_dir = _package_dir(filepath)
 
-        hunk_module = _path_to_module(filepath)
-        hunk_dir = _package_dir(filepath)
+    covered = False
 
-        covered = False
+    # (a) import-based coverage
+    if test_modules:
+        covered = any(
+            hunk_module == imp or hunk_module.startswith(imp + ".")
+            for imp in test_modules
+        )
 
-        # Check (a): import-based coverage
-        if test_modules:
-            covered = any(
-                hunk_module == imp or hunk_module.startswith(imp + ".")
-                for imp in test_modules
-            )
+    # (b) directory co-location
+    if not covered:
+        covered = any(
+            hunk_dir in td or td.startswith(hunk_dir)
+            for td in test_dirs
+        )
 
-        # Check (b): directory co-location
-        # Test file lives in a 'tests/' subdirectory of the hunk's package dir
-        if not covered:
-            covered = any(
-                hunk_dir in td or td.startswith(hunk_dir)
-                for td in test_dirs
-            )
-
-        tiers.append(1 if covered else 2)
-
-    return tiers
-
-
-def label_instance_inplace(
-    instance: dict,
-    raw_test_sources: dict[str, str] | None = None,
-) -> None:
-    """Assign tier_label to each hunk in ``instance['gold_hunks']`` in-place."""
-    tiers = label_tiers(instance, raw_test_sources)
-    for hunk, tier in zip(instance.get("gold_hunks", []), tiers):
-        hunk["tier_label"] = tier
+    return 1 if covered else 2

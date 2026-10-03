@@ -27,7 +27,8 @@ _SR_INSTRUCTIONS = (
     "- Preserve all whitespace and indentation exactly.\n"
     "- You may emit multiple SEARCH/REPLACE blocks for multiple locations or files.\n"
     "- Do NOT output a unified diff — output ONLY the SEARCH/REPLACE blocks above.\n"
-    "- Do NOT include any prose or explanation."
+    "- Do NOT include any prose or explanation.\n"
+    "- Do NOT use '...' or any other placeholder/ellipsis in SEARCH blocks — every character must be the exact literal text from the file."
 )
 
 _CONTROLLED_SYSTEM = (
@@ -108,15 +109,15 @@ def _extract_window(src: str, center_lines: list[int], window: int = 200) -> str
 
 
 def _relevant_context(sample: DataSample, budget: int = _CODE_BUDGET) -> str:
-    """Build a compact code context focused on files and hunks from the gold diff."""
-    gold_files = _extract_diff_file_paths(sample.golden_diff)
+    """Build a compact code context focused on files and hunks from the reference diff."""
+    reference_files = _extract_diff_file_paths(sample.reference_diff)
 
     ordered: list[tuple[str, str]] = []
     seen: set[str] = set()
-    for path in gold_files:
+    for path in reference_files:
         if path in sample.old_codebase and path not in seen:
             src = sample.old_codebase[path]
-            centers = _hunk_start_lines(sample.golden_diff, path)
+            centers = _hunk_start_lines(sample.reference_diff, path)
             if centers and len(src) > budget // 2:
                 src = _extract_window(src, centers)
             ordered.append((path, src))
@@ -238,10 +239,10 @@ class PatchGenerator:
 
     def _build_user_prompt(self, sample: DataSample) -> str:
         code_ctx = _relevant_context(sample)
-        gold_files = _extract_diff_file_paths(sample.golden_diff)
+        reference_files = _extract_diff_file_paths(sample.reference_diff)
         file_hint = (
-            f"\nThe file(s) to modify are: {', '.join(gold_files)}\n"
-            if gold_files else ""
+            f"\nThe file(s) to modify are: {', '.join(reference_files)}\n"
+            if reference_files else ""
         )
         return (
             f"## Issue\n{sample.issue_text}\n"
@@ -282,9 +283,9 @@ class PatchGenerator:
     def _repair_missing_header(diff: str, sample: DataSample) -> str:
         """If the diff starts with @@ but lacks --- / +++ headers, add them."""
         if re.match(r"\s*@@", diff):
-            gold_files = _extract_diff_file_paths(sample.golden_diff)
-            if len(gold_files) == 1:
-                path = gold_files[0]
+            reference_files = _extract_diff_file_paths(sample.reference_diff)
+            if len(reference_files) == 1:
+                path = reference_files[0]
                 return f"--- a/{path}\n+++ b/{path}\n{diff}"
         return diff
 
@@ -293,10 +294,10 @@ class PatchGenerator:
         """Replace literal 'path/to/file' placeholders with the actual file path."""
         if "path/to/file" not in diff:
             return diff
-        gold_files = _extract_diff_file_paths(sample.golden_diff)
-        if len(gold_files) != 1:
+        reference_files = _extract_diff_file_paths(sample.reference_diff)
+        if len(reference_files) != 1:
             return diff
-        path = gold_files[0]
+        path = reference_files[0]
         return diff.replace("path/to/file", path)
 
     def generate_controlled(self, sample: DataSample) -> str | None:
