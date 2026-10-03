@@ -1,6 +1,6 @@
 {
  "meta": {
-  "name": "REQ-only (untrained UniXCoder)",
+  "name": "Untrained UniXCoder",
   "encoder": "microsoft/unixcoder-base",
   "score": "cosine(mean-pooled REQ, mean-pooled HUNK), no projection"
  },
