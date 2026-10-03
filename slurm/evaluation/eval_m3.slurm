@@ -26,6 +26,7 @@ python evaluate.py \
     --instances  data/processed/instances_full.jsonl \
     --tier3      data/cache/tier3_hunks.jsonl \
     --exp        all \
-    --umap
+    --umap \
+    --repo-pool
 
 echo "Done: $(date)"
