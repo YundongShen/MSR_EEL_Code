@@ -8,7 +8,7 @@ from pathlib import Path
 
 @dataclass
 class DataConfig:
-    # Parsed instances (output of scripts/parse_instances.py): the paper uses all 2,291 SWE-bench issues.
+    # Parsed instances (output of data_pipeline/parse_instances.py): the paper uses all 2,291 SWE-bench issues.
     # Read them with data.instances.load_instances, which drops the reference patch's own hunks.
     instances_path: str = "data/processed/instances_full.jsonl"
 
@@ -16,7 +16,7 @@ class DataConfig:
     tier3_hard_neg_path: str = ""
 
     # Retained (Tier 1/2) hunks for training and every evaluation: LLM-generated hunks that
-    # match a reference-patch hunk (built by scripts/build_dataset.py).  Retained, Tier-3 and
+    # match a reference-patch hunk (built by data_pipeline/build_dataset.py).  Retained, Tier-3 and
     # distractor candidates all come from the same generation process.
     llm_t12_path: str = "data/cache/llm_t12_hunks.jsonl"
 

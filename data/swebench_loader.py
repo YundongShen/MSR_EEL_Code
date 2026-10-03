@@ -1,6 +1,6 @@
 """DataLoader for locally downloaded SWE-bench Lite instances.
 
-Expects the JSONL file produced by ``scripts/download_swebench.py``.
+Expects the JSONL file produced by ``data_pipeline/download_swebench.py``.
 
 Usage::
 
@@ -38,7 +38,7 @@ class SWEBenchLoader(DataLoader):
         if not self._path.exists():
             raise FileNotFoundError(
                 f"{self._path} not found. "
-                "Run scripts/download_swebench.py first."
+                "Run data_pipeline/download_swebench.py first."
             )
         self._max = max_samples
         self._data: list[DataSample] = []

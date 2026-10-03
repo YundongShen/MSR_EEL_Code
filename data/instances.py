@@ -1,6 +1,6 @@
 """Load parsed instances without the reference patch's own hunks.
 
-``instances_*.jsonl`` files written by older versions of scripts/parse_instances.py carry a
+``instances_*.jsonl`` files written by older versions of data_pipeline/parse_instances.py carry a
 ``gold_hunks`` field: the hunks of the SWE-bench reference patch itself.  No training,
 evaluation or analysis step may see it -- candidates are LLM-generated hunks only
 (data/retained_hunks.py).  Every reader of the instances file therefore goes through

@@ -355,7 +355,7 @@ def main(cfg: Config = default_config) -> None:
     if not instances_path.exists():
         raise FileNotFoundError(
             f"{instances_path} not found.\n"
-            "Run: python scripts/parse_instances.py "
+            "Run: python data_pipeline/parse_instances.py "
             "--input data/raw/swebench_full_instances.jsonl "
             "--output data/processed/instances_full.jsonl"
         )

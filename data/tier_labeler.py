@@ -12,7 +12,7 @@ Heuristic:
     (b) F and T share the same package directory (co-location).
 
 The label is a property of the hunk's file, so it is applied to the generated retained
-hunks when scripts/build_dataset.py builds the dataset.
+hunks when data_pipeline/build_dataset.py builds the dataset.
 """
 
 from __future__ import annotations

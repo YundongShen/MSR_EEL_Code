@@ -163,7 +163,7 @@ def check_validation_uses_negatives() -> None:
 
 def check_recipes() -> None:
     def flags(name: str) -> set[str]:
-        text = (ROOT / "scripts" / name).read_text()
+        text = (ROOT / "slurm" / "training" / name).read_text()
         return set(re.findall(r"^\s+(--[a-z0-9-]+)", text, re.MULTILINE))
     assert "--tier3" in flags("m2.slurm") and "--same-repo" not in flags("m2.slurm")
     assert {"--tier3", "--same-repo"} <= flags("m3.slurm"), "M3 must be M2 + same-repo negatives"

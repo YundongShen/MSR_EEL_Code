@@ -67,7 +67,7 @@ def validate_generated_hunks(
             if missing:
                 raise ValueError(
                     f"{source}: {iid} has a hunk without {missing}. The file was not produced by "
-                    "scripts/build_dataset.py (reference-patch hunks lack 'sample'); rebuild it."
+                    "data_pipeline/build_dataset.py (reference-patch hunks lack 'sample'); rebuild it."
                 )
             if h["tier_label"] not in allowed_tiers:
                 raise ValueError(f"{source}: {iid} has tier_label={h['tier_label']!r}, expected one of {allowed_tiers}")

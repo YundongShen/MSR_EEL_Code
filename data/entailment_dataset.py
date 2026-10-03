@@ -1,6 +1,6 @@
 """PyTorch Dataset for Edit Entailment Learning.
 
-Loads parsed instances and the retained hunks built by scripts/build_dataset.py, and
+Loads parsed instances and the retained hunks built by data_pipeline/build_dataset.py, and
 emits flat EntailmentPair objects representing the four positive pair types:
 
   req_test  — (REQ, TEST)  requirement ↔ fail-to-pass test function
@@ -106,7 +106,7 @@ class EntailmentDataset(Dataset):
     Parameters
     ----------
     instances_path:
-        Path to the instances JSONL produced by ``scripts/parse_instances.py``.
+        Path to the instances JSONL produced by ``data_pipeline/parse_instances.py``.
     pair_types:
         Which of the four pair types to include.  Defaults to all four.
     max_req_chars:
@@ -129,7 +129,7 @@ class EntailmentDataset(Dataset):
         self._rng = random.Random(seed)
         self._pairs: list[EntailmentPair] = []
 
-        # Retained (T1/T2) hunks keyed by instance_id, built by scripts/build_dataset.py.  The loader
+        # Retained (T1/T2) hunks keyed by instance_id, built by data_pipeline/build_dataset.py.  The loader
         # validates the file: LLM-generated hunks only, never the reference patch's own hunks.
         llm_t12_lookup = load_retained_hunks(llm_t12_path)
 

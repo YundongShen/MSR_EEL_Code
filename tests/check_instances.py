@@ -15,7 +15,7 @@ import traceback
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "scripts"))
+sys.path.insert(0, str(ROOT / "data_pipeline"))
 
 import parse_instances as pi                                                      # noqa: E402
 
@@ -140,7 +140,7 @@ def check_real_instances_file() -> None:
         empty += not r["test_functions"]
         with_gold += "gold_hunks" in r
     assert n == 2291, f"{n} instances"
-    assert with_gold == 0, "the instances file carries the reference patch's own hunks: rebuild it with scripts/parse_instances.py"
+    assert with_gold == 0, "the instances file carries the reference patch's own hunks: rebuild it with data_pipeline/parse_instances.py"
     assert empty / n < 0.02, f"TEST view empty for {empty}/{n} issues: the test code was not read from the post-test-patch files"
     print(f"  real file ok: {n} issues, TEST view empty for {empty}")
 
