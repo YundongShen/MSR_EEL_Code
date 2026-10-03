@@ -5,457 +5,457 @@
  },
  "scores": {
   "astropy__astropy-12057|H1": {
-   "score": 1.4211
+   "score": 1.4211257696151733
   },
   "astropy__astropy-12057|H2": {
-   "score": 1.5969
+   "score": 1.5969488620758057
   },
   "astropy__astropy-12057|H3": {
-   "score": -0.1237
+   "score": -0.12365139275789261
   },
   "astropy__astropy-12057|H4": {
-   "score": 1.4023
+   "score": 1.402317762374878
   },
   "astropy__astropy-13162|H1": {
-   "score": -0.1666
+   "score": -0.16657966375350952
   },
   "astropy__astropy-13162|H2": {
-   "score": 1.6757
+   "score": 1.6757019758224487
   },
   "astropy__astropy-13162|H3": {
-   "score": -0.1993
+   "score": -0.1993083953857422
   },
   "astropy__astropy-13404|H1": {
-   "score": 1.5295
+   "score": 1.5294504165649414
   },
   "astropy__astropy-13404|H2": {
-   "score": -0.3617
+   "score": -0.36169353127479553
   },
   "astropy__astropy-13417|H1": {
-   "score": 1.5139
+   "score": 1.5139286518096924
   },
   "astropy__astropy-13417|H2": {
-   "score": 1.5139
+   "score": 1.5139286518096924
   },
   "astropy__astropy-13417|H3": {
-   "score": -0.2935
+   "score": -0.2935066521167755
   },
   "astropy__astropy-13417|H4": {
-   "score": -0.2838
+   "score": -0.28376731276512146
   },
   "astropy__astropy-13417|H5": {
-   "score": -0.2338
+   "score": -0.23384308815002441
   },
   "astropy__astropy-13417|H6": {
-   "score": 1.5139
+   "score": 1.5139286518096924
   },
   "astropy__astropy-13734|H1": {
-   "score": 1.6209
+   "score": 1.6208962202072144
   },
   "astropy__astropy-13734|H2": {
-   "score": 1.3096
+   "score": 1.3095872402191162
   },
   "astropy__astropy-13734|H3": {
-   "score": -0.2414
+   "score": -0.2414190173149109
   },
   "astropy__astropy-13734|H4": {
-   "score": 1.651
+   "score": 1.65104341506958
   },
   "astropy__astropy-13734|H5": {
-   "score": 1.7049
+   "score": 1.7049264907836914
   },
   "astropy__astropy-13734|H6": {
-   "score": 1.4073
+   "score": 1.4072728157043457
   },
   "django__django-10531|H1": {
-   "score": 1.6975
+   "score": 1.6975069046020508
   },
   "django__django-10531|H2": {
-   "score": -0.0289
+   "score": -0.02889380231499672
   },
   "django__django-15103|H1": {
-   "score": 1.7813
+   "score": 1.7812809944152832
   },
   "django__django-15103|H2": {
-   "score": -0.2881
+   "score": -0.28807762265205383
   },
   "django__django-15103|H3": {
-   "score": 1.6586
+   "score": 1.6585566997528076
   },
   "django__django-15252|H1": {
-   "score": 1.5929
+   "score": 1.5929251909255981
   },
   "django__django-15252|H2": {
-   "score": -0.2905
+   "score": -0.29049861431121826
   },
   "django__django-15252|H3": {
-   "score": -0.3387
+   "score": -0.3387186825275421
   },
   "django__django-15252|H4": {
-   "score": -0.2914
+   "score": -0.2914358377456665
   },
   "django__django-16315|H1": {
-   "score": 1.7061
+   "score": 1.706113338470459
   },
   "django__django-16315|H2": {
-   "score": -0.0466
+   "score": -0.0465887188911438
   },
   "django__django-16910|H1": {
-   "score": 1.6386
+   "score": 1.638580322265625
   },
   "django__django-16910|H2": {
-   "score": 0.0207
+   "score": 0.020730827003717422
   },
   "django__django-16910|H3": {
-   "score": -0.0094
+   "score": -0.009423922747373581
   },
   "matplotlib__matplotlib-20816|H1": {
-   "score": 1.3286
+   "score": 1.3285881280899048
   },
   "matplotlib__matplotlib-20816|H2": {
-   "score": 1.3286
+   "score": 1.3285881280899048
   },
   "matplotlib__matplotlib-20816|H3": {
-   "score": -0.3762
+   "score": -0.37620556354522705
   },
   "matplotlib__matplotlib-23198|H1": {
-   "score": -0.1436
+   "score": -0.14361697435379028
   },
   "matplotlib__matplotlib-23198|H2": {
-   "score": 1.207
+   "score": 1.2069573402404785
   },
   "matplotlib__matplotlib-23573|H1": {
-   "score": 0.8298
+   "score": 0.8298298120498657
   },
   "matplotlib__matplotlib-23573|H2": {
-   "score": 1.0535
+   "score": 1.0535157918930054
   },
   "matplotlib__matplotlib-23573|H3": {
-   "score": 0.1147
+   "score": 0.11469930410385132
   },
   "matplotlib__matplotlib-24912|H1": {
-   "score": 0.0962
+   "score": 0.09623986482620239
   },
   "matplotlib__matplotlib-24912|H2": {
-   "score": 1.6478
+   "score": 1.647769570350647
   },
   "matplotlib__matplotlib-24912|H3": {
-   "score": 1.6478
+   "score": 1.647769570350647
   },
   "matplotlib__matplotlib-26341|H1": {
-   "score": -0.1244
+   "score": -0.12443758547306061
   },
   "matplotlib__matplotlib-26341|H2": {
-   "score": 1.5306
+   "score": 1.5305733680725098
   },
   "matplotlib__matplotlib-26341|H3": {
-   "score": 1.5306
+   "score": 1.5305733680725098
   },
   "matplotlib__matplotlib-26341|H4": {
-   "score": 1.0766
+   "score": 1.0765873193740845
   },
   "pydata__xarray-4182|H1": {
-   "score": 1.4039
+   "score": 1.40391206741333
   },
   "pydata__xarray-4182|H2": {
-   "score": -0.2569
+   "score": -0.2569342851638794
   },
   "pydata__xarray-4182|H3": {
-   "score": -0.3064
+   "score": -0.3063991069793701
   },
   "pydata__xarray-4182|H4": {
-   "score": 1.5047
+   "score": 1.5047482252120972
   },
   "pydata__xarray-4182|H5": {
-   "score": -0.3292
+   "score": -0.32924824953079224
   },
   "pydata__xarray-5126|H1": {
-   "score": 0.9684
+   "score": 0.9684308767318726
   },
   "pydata__xarray-5126|H2": {
-   "score": 1.1925
+   "score": 1.1924753189086914
   },
   "pydata__xarray-5126|H3": {
-   "score": -0.2806
+   "score": -0.28060829639434814
   },
   "pydata__xarray-5126|H4": {
-   "score": 1.0881
+   "score": 1.088120460510254
   },
   "pydata__xarray-5126|H5": {
-   "score": 0.891
+   "score": 0.890980064868927
   },
   "pydata__xarray-5126|H6": {
-   "score": 1.4853
+   "score": 1.4853479862213135
   },
   "pydata__xarray-5731|H1": {
-   "score": 0.0178
+   "score": 0.017843196168541908
   },
   "pydata__xarray-5731|H2": {
-   "score": 0.0398
+   "score": 0.03978783264756203
   },
   "pydata__xarray-5731|H3": {
-   "score": 0.0369
+   "score": 0.03687549754977226
   },
   "pydata__xarray-5731|H4": {
-   "score": 1.0245
+   "score": 1.0245048999786377
   },
   "pydata__xarray-5731|H5": {
-   "score": -0.0027
+   "score": -0.0027366410940885544
   },
   "pydata__xarray-5731|H6": {
-   "score": 0.0948
+   "score": 0.09481769055128098
   },
   "pydata__xarray-7391|H1": {
-   "score": 1.4182
+   "score": 1.418190360069275
   },
   "pydata__xarray-7391|H2": {
-   "score": -0.1055
+   "score": -0.1055011972784996
   },
   "pydata__xarray-7391|H3": {
-   "score": 1.4182
+   "score": 1.418190360069275
   },
   "pydata__xarray-7400|H1": {
-   "score": 1.48
+   "score": 1.4800450801849365
   },
   "pydata__xarray-7400|H2": {
-   "score": 0.9479
+   "score": 0.9479239583015442
   },
   "pydata__xarray-7400|H3": {
-   "score": 1.4505
+   "score": 1.4504889249801636
   },
   "pydata__xarray-7400|H4": {
-   "score": -0.171
+   "score": -0.17100568115711212
   },
   "pylint-dev__pylint-4398|H1": {
-   "score": 1.5425
+   "score": 1.5425466299057007
   },
   "pylint-dev__pylint-4398|H2": {
-   "score": 0.0318
+   "score": 0.03179553151130676
   },
   "pylint-dev__pylint-4398|H3": {
-   "score": 1.5801
+   "score": 1.5801341533660889
   },
   "pylint-dev__pylint-4398|H4": {
-   "score": 0.4319
+   "score": 0.4318994879722595
   },
   "pylint-dev__pylint-4492|H1": {
-   "score": 1.5071
+   "score": 1.5070933103561401
   },
   "pylint-dev__pylint-4492|H2": {
-   "score": 0.7164
+   "score": 0.7164175510406494
   },
   "pylint-dev__pylint-4492|H3": {
-   "score": -0.0041
+   "score": -0.004099385812878609
   },
   "pylint-dev__pylint-4492|H4": {
-   "score": 1.6827
+   "score": 1.682655930519104
   },
   "pytest-dev__pytest-5254|H1": {
-   "score": -0.2765
+   "score": -0.2765198349952698
   },
   "pytest-dev__pytest-5254|H2": {
-   "score": 1.4811
+   "score": 1.4811077117919922
   },
   "pytest-dev__pytest-5254|H3": {
-   "score": 1.7607
+   "score": 1.760722279548645
   },
   "pytest-dev__pytest-5254|H4": {
-   "score": -0.2247
+   "score": -0.22465094923973083
   },
   "pytest-dev__pytest-9133|H1": {
-   "score": 1.6107
+   "score": 1.6106847524642944
   },
   "pytest-dev__pytest-9133|H2": {
-   "score": 1.0487
+   "score": 1.0486668348312378
   },
   "pytest-dev__pytest-9133|H3": {
-   "score": 1.7752
+   "score": 1.7752063274383545
   },
   "pytest-dev__pytest-9133|H4": {
-   "score": 1.7111
+   "score": 1.7111098766326904
   },
   "pytest-dev__pytest-9133|H5": {
-   "score": 1.7752
+   "score": 1.7752063274383545
   },
   "pytest-dev__pytest-9956|H1": {
-   "score": 0.7828
+   "score": 0.7827737331390381
   },
   "pytest-dev__pytest-9956|H2": {
-   "score": -0.1828
+   "score": -0.18282371759414673
   },
   "pytest-dev__pytest-9956|H3": {
-   "score": 0.973
+   "score": 0.972983717918396
   },
   "scikit-learn__scikit-learn-12827|H1": {
-   "score": -0.0045
+   "score": -0.00449981726706028
   },
   "scikit-learn__scikit-learn-12827|H2": {
-   "score": 1.6487
+   "score": 1.6487149000167847
   },
   "scikit-learn__scikit-learn-13485|H1": {
-   "score": 0.0155
+   "score": 0.015520205721259117
   },
   "scikit-learn__scikit-learn-13485|H2": {
-   "score": 1.2316
+   "score": 1.2316296100616455
   },
   "scikit-learn__scikit-learn-13485|H3": {
-   "score": 0.0716
+   "score": 0.07162050902843475
   },
   "scikit-learn__scikit-learn-14806|H1": {
-   "score": 1.3769
+   "score": 1.3768749237060547
   },
   "scikit-learn__scikit-learn-14806|H2": {
-   "score": 0.1233
+   "score": 0.12334604561328888
   },
   "scikit-learn__scikit-learn-14806|H3": {
-   "score": 1.5632
+   "score": 1.5631861686706543
   },
   "scikit-learn__scikit-learn-14806|H4": {
-   "score": -0.0526
+   "score": -0.0525912344455719
   },
   "scikit-learn__scikit-learn-15028|H1": {
-   "score": -0.252
+   "score": -0.2519863247871399
   },
   "scikit-learn__scikit-learn-15028|H2": {
-   "score": 1.4425
+   "score": 1.4425292015075684
   },
   "scikit-learn__scikit-learn-15028|H3": {
-   "score": 1.4425
+   "score": 1.4425292015075684
   },
   "scikit-learn__scikit-learn-15028|H4": {
-   "score": -0.1838
+   "score": -0.1837613582611084
   },
   "scikit-learn__scikit-learn-15028|H5": {
-   "score": 1.4344
+   "score": 1.434412956237793
   },
   "scikit-learn__scikit-learn-15028|H6": {
-   "score": 1.4425
+   "score": 1.4425292015075684
   },
   "scikit-learn__scikit-learn-15094|H1": {
-   "score": -0.1072
+   "score": -0.10724912583827972
   },
   "scikit-learn__scikit-learn-15094|H2": {
-   "score": 1.3762
+   "score": 1.3762414455413818
   },
   "scikit-learn__scikit-learn-15094|H3": {
-   "score": 1.3762
+   "score": 1.3762414455413818
   },
   "scikit-learn__scikit-learn-15094|H4": {
-   "score": 1.3762
+   "score": 1.3762414455413818
   },
   "sphinx-doc__sphinx-8264|H1": {
-   "score": 1.4427
+   "score": 1.4427309036254883
   },
   "sphinx-doc__sphinx-8264|H2": {
-   "score": -0.0812
+   "score": -0.08119744062423706
   },
   "sphinx-doc__sphinx-8291|H1": {
-   "score": 0.0262
+   "score": 0.02620014175772667
   },
   "sphinx-doc__sphinx-8291|H2": {
-   "score": 0.894
+   "score": 0.8940261602401733
   },
   "sphinx-doc__sphinx-8291|H3": {
-   "score": 0.0457
+   "score": 0.045672282576560974
   },
   "sphinx-doc__sphinx-8291|H4": {
-   "score": -0.0931
+   "score": -0.09308123588562012
   },
   "sphinx-doc__sphinx-8291|H5": {
-   "score": 0.0788
+   "score": 0.07876332104206085
   },
   "sphinx-doc__sphinx-8291|H6": {
-   "score": 1.5238
+   "score": 1.5237897634506226
   },
   "sphinx-doc__sphinx-8674|H1": {
-   "score": 0.0675
+   "score": 0.06752368807792664
   },
   "sphinx-doc__sphinx-8674|H2": {
-   "score": 1.5107
+   "score": 1.5107265710830688
   },
   "sphinx-doc__sphinx-8674|H3": {
-   "score": 1.5308
+   "score": 1.5307848453521729
   },
   "sphinx-doc__sphinx-8674|H4": {
-   "score": 1.4813
+   "score": 1.4813191890716553
   },
   "sphinx-doc__sphinx-9461|H1": {
-   "score": 1.6275
+   "score": 1.627518892288208
   },
   "sphinx-doc__sphinx-9461|H2": {
-   "score": 1.5211
+   "score": 1.5210790634155273
   },
   "sphinx-doc__sphinx-9461|H3": {
-   "score": 1.5211
+   "score": 1.5210790634155273
   },
   "sphinx-doc__sphinx-9461|H4": {
-   "score": 1.5211
+   "score": 1.5210790634155273
   },
   "sphinx-doc__sphinx-9461|H5": {
-   "score": 1.3027
+   "score": 1.3027007579803467
   },
   "sphinx-doc__sphinx-9461|H6": {
-   "score": -0.1037
+   "score": -0.1037040576338768
   },
   "sphinx-doc__sphinx-9828|H1": {
-   "score": 0.0539
+   "score": 0.05387122929096222
   },
   "sphinx-doc__sphinx-9828|H2": {
-   "score": 1.6457
+   "score": 1.6457284688949585
   },
   "sphinx-doc__sphinx-9828|H3": {
-   "score": -0.0565
+   "score": -0.05647658556699753
   },
   "sphinx-doc__sphinx-9828|H4": {
-   "score": -0.0036
+   "score": -0.003590032458305359
   },
   "sphinx-doc__sphinx-9828|H5": {
-   "score": 1.6317
+   "score": 1.6316825151443481
   },
   "sympy__sympy-15011|H1": {
-   "score": -0.2952
+   "score": -0.295180082321167
   },
   "sympy__sympy-15011|H2": {
-   "score": 1.4684
+   "score": 1.4684007167816162
   },
   "sympy__sympy-15011|H3": {
-   "score": 1.4528
+   "score": 1.4527939558029175
   },
   "sympy__sympy-18633|H1": {
-   "score": -0.1955
+   "score": -0.19549506902694702
   },
   "sympy__sympy-18633|H2": {
-   "score": 0.9657
+   "score": 0.9656752347946167
   },
   "sympy__sympy-18633|H3": {
-   "score": -0.1756
+   "score": -0.17559605836868286
   },
   "sympy__sympy-18633|H4": {
-   "score": 1.4981
+   "score": 1.4981184005737305
   },
   "sympy__sympy-19040|H1": {
-   "score": 1.5215
+   "score": 1.5214626789093018
   },
   "sympy__sympy-19040|H2": {
-   "score": -0.1539
+   "score": -0.153920516371727
   },
   "sympy__sympy-20442|H1": {
-   "score": 1.4391
+   "score": 1.4390778541564941
   },
   "sympy__sympy-20442|H2": {
-   "score": -0.0881
+   "score": -0.08806294202804565
   },
   "sympy__sympy-20442|H3": {
-   "score": 1.4391
+   "score": 1.4390778541564941
   },
   "sympy__sympy-23413|H1": {
-   "score": 1.4588
+   "score": 1.4587619304656982
   },
   "sympy__sympy-23413|H2": {
-   "score": -0.1484
+   "score": -0.1483597457408905
   },
   "sympy__sympy-23413|H3": {
-   "score": -0.1223
+   "score": -0.12225941568613052
   }
  }
 }
