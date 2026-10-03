@@ -1,0 +1,29 @@
+21:45:40 [INFO] Device: cuda
+21:45:40 [INFO] use_projection: True
+The new embeddings will be initialized from a multivariate normal distribution that has old embeddings' mean and covariance. As described in this article: https://nlp.stanford.edu/~johnhew/vocab-expansion.html. To disable this, use `mean_resizing=False`
+/mimer/NOBACKUP/groups/llm-readability/EditBoundaryDetection/evaluate.py:66: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(ckpt_path, map_location=device)
+21:45:43 [INFO] Loaded encoder from checkpoints/m2_abl_no_orig/best.pt
+21:45:43 [INFO] === Experiment 1: Geometric Structure Validation ===
+21:45:45 [INFO] Test instances: 229
+21:45:45 [INFO] Tier-3 lookup loaded: 743 instances with scope-creep hunks
+21:46:42 [INFO] 1  n=415  mean=0.8541  std=0.2695  median=0.8428
+21:46:42 [INFO] 2a  n=348  mean=0.7973  std=0.2580  median=0.7868
+21:46:42 [INFO] 2b  n=99  mean=0.7242  std=0.2650  median=0.7239
+21:46:42 [INFO] 3  n=143  mean=0.0847  std=0.2543  median=0.0138
+21:46:42 [INFO] Mann-Whitney U [score]  1 > 2a:  U=81169  p=1.5665e-03  **
+21:46:42 [INFO] Mann-Whitney U [score]  1 > 2b:  U=26318  p=6.8355e-06  ***
+21:46:42 [INFO] Mann-Whitney U [score]  2a > 2b:  U=20231  p=4.0340e-03  **
+21:46:42 [INFO] Mann-Whitney U [score]  2a > 3:  U=47674  p=1.2945e-57  ***
+21:46:42 [INFO] Mann-Whitney U [score]  2b > 3:  U=13295  p=1.8442e-31  ***
+21:46:42 [INFO] Mann-Whitney U [score]  1 > 3:  U=57162  p=1.0616e-61  ***
+21:46:42 [INFO] Mann-Whitney U [ORIG-sim]  2a > 2b:  U=34353  p=2.2587e-52  ***  (n_2a=348 mean=0.7522 | n_2b=99 mean=0.0000)
+21:46:43 [INFO] Histogram saved → logs/geometry_hist.png
+21:46:43 [INFO] === Experiment 2: Retrieval ===
+21:46:44 [INFO] Test instances: 229
+21:46:44 [INFO] Tier-3 lookup: 743 instances with scope-creep hunks
+21:46:44 [INFO] Building repo-level distractor pool (test split only) …
+21:46:44 [INFO] Repo pool: 11 repos, 862 total hunks
+21:50:00 [INFO] nDCG@k_gold  mean=0.6681  std=0.3809  n=82  (k = |T1∪T2| per instance)
+21:50:00 [INFO] T2-Recall(K=gold)  mean=0.7210  std=0.3656  n=47  (top-K = |T1∪T2|)
+21:50:00 [INFO] Perfect-Sep  mean=0.9268  n=82  (all T3 ranked after all gold)

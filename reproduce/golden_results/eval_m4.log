@@ -1,0 +1,36 @@
+20:10:04 [INFO] Device: cuda
+20:10:04 [INFO] use_projection: True
+The new embeddings will be initialized from a multivariate normal distribution that has old embeddings' mean and covariance. As described in this article: https://nlp.stanford.edu/~johnhew/vocab-expansion.html. To disable this, use `mean_resizing=False`
+/mimer/NOBACKUP/groups/llm-readability/EditBoundaryDetection/evaluate.py:66: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(ckpt_path, map_location=device)
+20:10:07 [INFO] Loaded encoder from checkpoints/m4/best.pt
+20:10:07 [INFO] === Experiment 1: Geometric Structure Validation ===
+20:10:08 [INFO] Test instances: 229
+20:10:08 [INFO] Tier-3 lookup loaded: 743 instances with scope-creep hunks
+20:11:24 [INFO] 1  n=415  mean=1.2706  std=0.2883  median=1.2635
+20:11:24 [INFO] 2a  n=348  mean=1.2733  std=0.2395  median=1.2546
+20:11:24 [INFO] 2b  n=99  mean=0.7549  std=0.2369  median=0.7332
+20:11:24 [INFO] 3  n=143  mean=0.1463  std=0.3917  median=-0.0001
+20:11:24 [INFO] Mann-Whitney U [score]  1 > 2a:  U=73082  p=3.8690e-01  n.s.
+20:11:24 [INFO] Mann-Whitney U [score]  1 > 2b:  U=37243  p=1.4207e-36  ***
+20:11:24 [INFO] Mann-Whitney U [score]  2a > 2b:  U=32154  p=7.2317e-40  ***
+20:11:24 [INFO] Mann-Whitney U [score]  2a > 3:  U=48133  p=7.1505e-60  ***
+20:11:24 [INFO] Mann-Whitney U [score]  2b > 3:  U=12665  p=8.7775e-26  ***
+20:11:24 [INFO] Mann-Whitney U [score]  1 > 3:  U=57391  p=1.0699e-62  ***
+20:11:24 [INFO] Mann-Whitney U [ORIG-sim]  2a > 2b:  U=34452  p=5.9009e-53  ***  (n_2a=348 mean=0.8715 | n_2b=99 mean=0.0000)
+20:11:24 [INFO] Histogram saved → logs/geometry_hist.png
+20:11:31 [INFO] Silhouette score (256D cosine, hunk tiers): 0.1163
+20:11:31 [INFO] Running 3D UMAP on 1560 points (1005 hunks + 555 entity anchors)...
+/mimer/NOBACKUP/groups/llm-readability/EditBoundaryDetection/gpu_env/lib/python3.11/site-packages/umap/umap_.py:1952: UserWarning: n_jobs value 1 overridden to 1 by setting random_state. Use no seed for parallelism.
+  warn(
+20:11:44 [INFO] UMAP embeddings saved → logs/umap_embs_m4.npz
+20:11:45 [INFO] 3D UMAP saved → logs/umap_3d_m4.png
+20:11:45 [INFO] Paired M0/M4 UMAP saved → logs/umap_3d_paired.png
+20:11:45 [INFO] === Experiment 2: Retrieval ===
+20:11:47 [INFO] Test instances: 229
+20:11:47 [INFO] Tier-3 lookup: 743 instances with scope-creep hunks
+20:11:47 [INFO] Building repo-level distractor pool (test split only) …
+20:11:47 [INFO] Repo pool: 11 repos, 862 total hunks
+20:15:03 [INFO] nDCG@k_gold  mean=0.8119  std=0.2986  n=82  (k = |T1∪T2| per instance)
+20:15:03 [INFO] T2-Recall(K=gold)  mean=0.7914  std=0.3101  n=47  (top-K = |T1∪T2|)
+20:15:03 [INFO] Perfect-Sep  mean=0.8049  n=82  (all T3 ranked after all gold)

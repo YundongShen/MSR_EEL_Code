@@ -1,0 +1,12 @@
+paper_row,checkpoint,alpha,beta,gamma,nDCG@k,T2-Recall,PSR,n,n_t2,eval_log,train_log
+M0,none (untrained UniXCoder),1,0.5,0.5,0.5897,0.6776,0.2805,82,47,eval_m0.log,
+M1,m1,1,0.5,0.5,0.5952,0.6641,0.2439,82,47,eval_m1.log,train_m1.log
+M2 (EEL),m2,1,0.5,0.5,0.8248,0.8386,0.9024,82,47,eval_m2_eel.log,train_m2.log
+M3,m3,1,0.5,0.5,0.8061,0.7844,0.8293,82,47,eval_m3.log,train_m3.log
+M4,m4,1,0.5,0.5,0.8119,0.7914,0.8049,82,47,eval_m4.log,train_m4.log
+w/o ORIG,m2_abl_no_orig,1,0.5,0,0.6681,0.7210,0.9268,82,47,eval_w_o_orig.log,train_m2_abl_no_orig.log
+w/o TEST,m2_abl_no_test,1,0,0.5,0.8063,0.8297,0.9512,82,47,eval_w_o_test.log,train_m2_abl_no_test.log
+w/o REQ,m2_abl_no_req,0,0,0.5,0.7893,0.7545,0.8293,82,47,eval_w_o_req.log,train_m2_abl_no_req.log
+REQ-only,exp2_req_only,1,0,0,0.6928,0.7954,0.8659,82,47,eval_req_only.log,train_exp2_req_only.log
+TEST-view,exp2_test_only,0,1,0,0.3132,0.2891,0.5854,82,47,eval_test_view.log,train_exp2_test_only.log
+ORIG-only,m2_abl_no_req,0,0,1,0.7893,0.7545,0.8293,82,47,eval_orig_only.log,train_m2_abl_no_req.log
