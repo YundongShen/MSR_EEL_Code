@@ -6,11 +6,13 @@
 | 5.6sol | 0.862 | 0.947 | 0.907 |
 | EEL | 0.821 | 0.903 | 0.863 |
 
-Default labels (generated hunk matches the reference patch → accept, otherwise → reject) vs engineers (median of 3):
+Dataset labels vs engineers (151 surveyed hunks; engineer label = median of 3; Must Retain / Optional = keep, Remove = remove).
+Dataset rule: a generated hunk that matches the reference patch is retained (T1/T2), otherwise not retained (T3).
 
-| Default label | Engineers: Must Retain | Optional | Remove | Total |
+| Dataset label | Hunks | Engineers agree | Engineers disagree | Disagreement |
 |---|---|---|---|---|
-| Accept (matches reference) | 69 | 5 | 5 | 79 |
-| Reject (no match, T3) | 19 | 5 | 48 | 72 |
-
-Accept/reject agreement: 122 / 151 = 0.808
+| Retained, T1 | 33 | 28 keep | 5 remove | 15.2% |
+| Retained, T2 | 46 | 46 keep | 0 remove | 0.0% |
+| Retained, total | 79 | 74 keep | 5 remove | 6.3% |
+| Not retained, T3 | 72 | 48 remove | 24 keep (19 Must Retain, 5 Optional) | 33.3% |
+| All | 151 | 122 | 29 | 19.2% |
