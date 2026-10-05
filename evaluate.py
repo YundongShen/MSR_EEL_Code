@@ -188,7 +188,7 @@ def run_geometry(
 
         # Pre-compute instance-level anchor embeddings (normalised) for per-hunk sims
         iid = inst.get("instance_id", "")
-        r_norm_inst = t_norm_inst = o_norm_inst = None
+        r_norm_inst = t_embs_inst = o_norm_inst = None
         if need_anchors:
             r_emb_inst = encoder.encode([req], "REQ", device, use_projection)
             r_norm_inst = F.normalize(r_emb_inst, dim=-1)           # (1, D)
@@ -197,7 +197,6 @@ def run_geometry(
 
             if test_texts:
                 t_embs_inst = encoder.encode(test_texts, "TEST", device, use_projection)
-                t_norm_inst = F.normalize(t_embs_inst.mean(dim=0, keepdim=True), dim=-1)  # (1, D)
                 if collect_umap:
                     entity_embs_for_umap["TEST"].append(t_embs_inst.mean(dim=0).cpu().numpy())
 
@@ -247,7 +246,7 @@ def run_geometry(
                     embs_for_umap[eff_tier].append(h_emb.cpu().numpy()[0])
 
                 sim_req  = (h_norm * r_norm_inst).sum(-1).item()
-                sim_test = (h_norm * t_norm_inst).sum(-1).item() if t_norm_inst is not None else 0.0
+                sim_test = (t_embs_inst @ h_norm.T).max().item() if t_embs_inst is not None else 0.0
                 # ORIG: hunk-specific only; no fallback to instance-level to keep
                 # sim_orig consistent with entailment_score (which uses 0 when orig_texts=[]).
                 has_orig = bool(hunk_orig_texts)

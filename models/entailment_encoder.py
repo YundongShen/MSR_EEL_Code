@@ -163,7 +163,7 @@ class EntailmentEncoder(nn.Module):
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Per-hunk similarity to each repository view: (sim_req, sim_test, sim_orig), each of shape (B,).
 
-        sim_test is the similarity to the mean-pooled TEST embeddings (t-bar in the paper), 0 when there is no test;
+        sim_test is the maximum similarity to a TEST embedding, 0 when there is no test;
         sim_orig is the similarity to the mean-pooled ORIG unit embeddings, 0 when the hunk has no unit.
         Computing the three once lets the score weights (alpha, beta, gamma) be varied without re-encoding.
         """
@@ -174,11 +174,11 @@ class EntailmentEncoder(nn.Module):
         h_emb = self.encode(hunk_texts, "HUNK", dev, up)   # (B, D)
         r_emb = self.encode(req_texts,  "REQ",  dev, up)   # (B, D)
 
-        # Mean-pool test embeddings per hunk (t-bar = mean over the instance's tests)
-        t_emb = torch.zeros(B, h_emb.size(-1), device=dev)
+        # Score each test separately and keep the strongest match for each hunk.
+        sim_test = h_emb.new_zeros(B)
         for i, tests in enumerate(test_texts):
             if tests:
-                t_emb[i] = self.encode(tests, "TEST", dev, up).mean(dim=0)
+                sim_test[i] = (self.encode(tests, "TEST", dev, up) @ h_emb[i]).max()
 
         # Mean-pool orig embeddings per hunk (caller passes only the relevant ORIG units
         # via _units_for_hunk — Issue 2 fix — so mean over a small set is appropriate)
@@ -188,7 +188,6 @@ class EntailmentEncoder(nn.Module):
                 o_emb[i] = self.encode(origs, "ORIG", dev, up).mean(dim=0)
 
         sim_req  = (h_emb * r_emb).sum(dim=-1)
-        sim_test = (h_emb * F.normalize(t_emb, dim=-1)).sum(dim=-1)
         sim_orig = (h_emb * F.normalize(o_emb, dim=-1)).sum(dim=-1)
         return sim_req, sim_test, sim_orig
 
@@ -208,7 +207,7 @@ class EntailmentEncoder(nn.Module):
         """Compute Edit Entailment Score for each hunk.
 
         Score(hunk) = α·sim(hunk, req)
-                    + β·sim(hunk, mean(test_embs))
+                    + β·max_t sim(hunk, test_t)
                     + γ·sim(hunk, mean(orig_units))
 
         Parameters
