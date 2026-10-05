@@ -163,7 +163,6 @@ class EntailmentEncoder(nn.Module):
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Per-hunk similarity to each repository view: (sim_req, sim_test, sim_orig), each of shape (B,).
 
-        sim_test is the maximum similarity to a TEST embedding, 0 when there is no test;
         sim_orig is the similarity to the mean-pooled ORIG unit embeddings, 0 when the hunk has no unit.
         Computing the three once lets the score weights (alpha, beta, gamma) be varied without re-encoding.
         """
@@ -174,7 +173,6 @@ class EntailmentEncoder(nn.Module):
         h_emb = self.encode(hunk_texts, "HUNK", dev, up)   # (B, D)
         r_emb = self.encode(req_texts,  "REQ",  dev, up)   # (B, D)
 
-        # Score each test separately and keep the strongest match for each hunk.
         sim_test = h_emb.new_zeros(B)
         for i, tests in enumerate(test_texts):
             if tests:
@@ -205,10 +203,6 @@ class EntailmentEncoder(nn.Module):
         use_projection: bool = True,
     ) -> torch.Tensor:
         """Compute Edit Entailment Score for each hunk.
-
-        Score(hunk) = α·sim(hunk, req)
-                    + β·max_t sim(hunk, test_t)
-                    + γ·sim(hunk, mean(orig_units))
 
         Parameters
         ----------
