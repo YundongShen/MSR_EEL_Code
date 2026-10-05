@@ -28,6 +28,14 @@ def parse_hunks(patch: str) -> list[dict]:
 
     for raw in patch.splitlines(keepends=True):
         if raw.startswith("--- "):
+            if current_lines and current_file and old_start is not None:
+                hunks.append({
+                    "filepath": current_file,
+                    "old_start": old_start,
+                    "lines": list(current_lines),
+                })
+            current_lines = []
+            old_start = None
             m = re.match(r"^--- (?:a/)?(.+)", raw)
             current_file = m.group(1).strip() if m else None
             continue
