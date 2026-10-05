@@ -1,15 +1,4 @@
 """Provenance of the hunks a model was trained on, and content checks for hunk files.
-
-Why this exists: earlier checkpoints were trained on the reference patch's own hunks (the SWE-bench
-patch) and were then evaluated against LLM-generated hunks; after several data migrations nothing
-recorded which checkpoint had seen which data.  From now on
-
-  * every checkpoint carries ``data_provenance`` (what it was trained on, file digests, git state);
-  * every checkpoint loader calls ``load_checkpoint_checked``, which refuses a checkpoint without
-    a valid stamp (``allow_legacy=True`` for archival diagnostics only, with a warning);
-  * every hunk file is validated on load: it must look like build_dataset.py output, i.e. LLM-generated
-    hunks rendered by difflib.  A file of git-diff rendered hunks (reference-patch hunks carry a
-    function name after ``@@``) is rejected.
 """
 
 from __future__ import annotations
